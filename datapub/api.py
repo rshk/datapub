@@ -54,8 +54,8 @@ def catalog_view(fmt=None):
         ##       the whole graph at once!
         if fmt is None:
             ## If no format specified, return a list of choices
-            choices = {'/catalog.{}'.format(k): v[0]
-                       for k, v in SERIALIZATION_FORMATS.iteritems()}
+            choices = dict(('/catalog.{}'.format(k), v[0])
+                           for k, v in SERIALIZATION_FORMATS.iteritems())
             return (json.dumps(choices),
                     300, {'Content-Type': 'application/json'})
 

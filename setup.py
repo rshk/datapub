@@ -10,24 +10,27 @@ from setuptools.command.test import test as TestCommand
 version = '0.1-alpha'
 
 install_requires = [
-    'Flask',
-    "Flask-RESTful",
+    "Flask",
+    #"Flask-RESTful",
 
-    #"Flask-OpenID",  # Maybe in the future..
+    #"Flask-OpenID",  # Maybe in the future
+    #"Flask-Login",  # This looks nice.. -> can we store users in graph too?
     #"Flask-SQLAlchemy",  # we use rdflib for this
     #"Flask-Restless",  # ?
+
+    ## todo: we'd need a rdflib store backed by datapub API
 
     # "psycopg2",  # Only if using postgresql
     # "six",  # This is apparently needed, for py3k (py3k not supported yet)
 
-    "rdflib",
-    "rdflib-sqlalchemy",
-    "rdflib-jsonld",
+    "rdflib==4.0",
+    "rdflib-sqlalchemy==0.2",
+    #"rdflib-jsonld==0.1",
 ]
 
 dependency_links = [
-    'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy',
-    'git+https://github.com/RDFLib/rdflib-jsonld.git@master#egg=rdflib-jsonld',
+    'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy-0.2',
+    #'git+https://github.com/RDFLib/rdflib-jsonld.git@master#egg=rdflib-jsonld-0.1',
 ]
 
 tests_require = [
