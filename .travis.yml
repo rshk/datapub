@@ -1,8 +1,5 @@
 language: python
 
-services:
-  - postgresql
-
 branches:
   except:
     - gh-pages
@@ -16,8 +13,5 @@ env:
 
 install:
   - pip install tox --use-mirrors
-
-before_script:
-  - './scripts/testing_setup.sh'
 
 script: tox
