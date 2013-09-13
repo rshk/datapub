@@ -1,5 +1,7 @@
 # DataPub
 
+[![Build Status](https://travis-ci.org/rshk/datapub.png)](https://travis-ci.org/rshk/datapub)
+
 Simple data publishing application.
 
 ## Technologies
