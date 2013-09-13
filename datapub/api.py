@@ -16,10 +16,12 @@ GET /catalog/<dataset>[.format]
 """
 
 import json
-from .app import app, graph
 
 from flask import request
 from rdflib import Graph
+
+from .app import app
+from .graph import graph
 
 
 SERIALIZATION_FORMATS = {
@@ -36,7 +38,7 @@ SERIALIZATION_FORMATS = {
 
 def load_graph_from_request(request):
     g = Graph()
-    g.parse(data=request.data, format='nt')
+    g.parse(data=request.data, format='n3')
     return g
 
 
@@ -44,6 +46,8 @@ def load_graph_from_request(request):
 @app.route('/catalog', methods=['GET', 'POST', 'DELETE'])
 @app.route('/catalog.<fmt>')
 def catalog_view(fmt=None):
+    global graph
+
     if request.method == 'GET':
         ## GET is used to get catalog information
         ## todo: we should apply filters here, we do not want to return
@@ -63,17 +67,20 @@ def catalog_view(fmt=None):
     elif request.method == 'POST':
         ## POST is used to add triples
         g2 = load_graph_from_request(request)
-        # graph += g2
-        g3 = graph + g2
-        return (g3.serializer(format='pretty-xml'),
-                200, {'Content-Type': 'application/rdf+xml'})
+        for triple in g2:
+            graph.add(triple)
+        return json.dumps({'message': "{} triples inserted".format(len(g2))})
 
-    ## todo: use PATCH for .set()
+    elif request.method == 'PATCH':
+        ## POST is used to set values
+        g2 = load_graph_from_request(request)
+        for triple in g2:
+            graph.set(triple)
+        return json.dumps({'message': "{} triples updated".format(len(g2))})
 
     elif request.method == 'DELETE':
         ## DELETE is used to delete triples
         g2 = load_graph_from_request(request)
-        # graph -= g2
-        g3 = graph - g2
-        return (g3.serializer(format='pretty-xml'),
-                200, {'Content-Type': 'application/rdf+xml'})
+        for triple in g2:
+            graph.delete(g2)
+        return json.dumps({'message': "{} triples deleted".format(len(g2))})
