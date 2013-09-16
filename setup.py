@@ -23,13 +23,14 @@ install_requires = [
     # "psycopg2",  # Only if using postgresql
     # "six",  # This is apparently needed, for py3k (py3k not supported yet)
 
-    "rdflib==4.0",
-    "rdflib-sqlalchemy==0.2",
+    "rdflib>=4.0",
+    "rdflib-sqlalchemy",
     #"rdflib-jsonld==0.1",
 ]
 
 dependency_links = [
-    'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy-0.2',
+    'https://github.com/RDFLib/rdflib-sqlalchemy/archive/master.zip#egg=rdflib-sqlalchemy',
+    #'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy-0.2',
     #'git+https://github.com/RDFLib/rdflib-jsonld.git@master#egg=rdflib-jsonld-0.1',
 ]
 
