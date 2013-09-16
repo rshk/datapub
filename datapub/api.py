@@ -15,7 +15,9 @@ GET /catalog/<dataset>[.format]
 
 """
 
+import hashlib
 import json
+import os
 
 import flask
 from flask import request
@@ -89,3 +91,54 @@ def catalog_view(fmt=None):
         for triple in g2:
             graph.delete(g2)
         return json.dumps({'message': "{} triples deleted".format(len(g2))})
+
+
+@app.route('/blobs', methods=['GET', 'POST', 'DELETE'])
+@app.route('/blobs/<blob_id>')
+def blobs_view(blob_id=None):
+    """
+    Blobs storage API. Allows GET|POST|DELETE of binary files.
+
+    POST /blobs
+
+        Allows uploading a file; the file will be stored by its sha1 sum
+
+    GET /blobs/<sha1>
+
+        Returns the content of the blob itself
+
+    DELETE /blobs/<sha1>
+
+        Deletes the specified blob
+    """
+    if request.method == 'POST':
+        if blob_id is not None:
+            return "You cannot POST content for a blob by id", 400
+
+        ## Now we need to save the file
+        new_file = request.files['file']
+
+        ## Now, we can read the file in chunks to calculate
+        ## its sha1 sum
+        sha1 = hashlib.sha1()
+        while True:
+            data = new_file.read(1024**2)
+            if not data:
+                break
+            sha1.update(data)
+        sha1 = sha1.hexdigest()
+
+        ## Then, store it
+        new_file.seek(0)
+        ## todo: we can store files in a smarter way, eg.
+        ##       creating some subfolders...
+        file_dest = os.path.join(app.config['UPLOAD_FOLDER'], sha1)
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+        new_file.save(file_dest)
+        return (json.dumps({'blob_id': sha1}), 201,
+                {'Content-Type': 'application/json',
+                 'Location': flask.url_for('blobs_view', blob_id=sha1)})
+
+    return "This is a result"
+    pass

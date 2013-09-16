@@ -17,6 +17,8 @@ app.config.update(dict(
     DEBUG=False,
     DATABASE_URI='sqlite:////tmp/datapub.sqlite',  # or sqlite://
     CATALOG_ID='datapub-catalog',
+    UPLOAD_FOLDER='/tmp/datapub-files',
+    MAX_CONTENT_LENGTH=(16 * 1024 * 1024),
 ))
 app.config.from_envvar('DATAPUB_SETTINGS', silent=True)
 
