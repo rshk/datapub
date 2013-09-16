@@ -17,6 +17,7 @@ GET /catalog/<dataset>[.format]
 
 import json
 
+import flask
 from flask import request
 from rdflib import Graph
 
@@ -43,6 +44,10 @@ def load_graph_from_request(request):
 
 
 @app.route('/')
+def homepage():
+    return flask.redirect(flask.url_for('catalog_view'))
+
+
 @app.route('/catalog', methods=['GET', 'POST', 'DELETE'])
 @app.route('/catalog.<fmt>')
 def catalog_view(fmt=None):
@@ -56,7 +61,7 @@ def catalog_view(fmt=None):
             ## If no format specified, return a list of choices
             choices = dict(('/catalog.{}'.format(k), v[0])
                            for k, v in SERIALIZATION_FORMATS.iteritems())
-            return (json.dumps(choices),
+            return (json.dumps(choices, indent=4),
                     300, {'Content-Type': 'application/json'})
 
         ## Return the serialized graph
