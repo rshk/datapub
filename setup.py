@@ -29,8 +29,8 @@ install_requires = [
 ]
 
 dependency_links = [
-    'https://github.com/RDFLib/rdflib-sqlalchemy/archive/master.zip#egg=rdflib-sqlalchemy',
-    #'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy-0.2',
+    'https://github.com/RDFLib/rdflib-sqlalchemy/archive/master.zip#egg=rdflib-sqlalchemy-dev',
+    'git+https://github.com/RDFLib/rdflib-sqlalchemy.git@master#egg=rdflib-sqlalchemy-dev',
     #'git+https://github.com/RDFLib/rdflib-jsonld.git@master#egg=rdflib-jsonld-0.1',
 ]
 
