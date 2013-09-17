@@ -1,8 +1,5 @@
-import os
-from ConfigParser import RawConfigParser
-
 from flask import Flask
-from rdflib import Graph, Namespace, Literal, URIRef, BNode, plugin
+from rdflib import Graph, Namespace, BNode, plugin
 from rdflib.namespace import RDF, DC, XSD, FOAF
 from rdflib.store import Store
 

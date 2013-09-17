@@ -1,10 +1,6 @@
 """
 Tests for the DataPub CRUD
 """
-
-import datetime
-import json
-
 from rdflib import Graph, Namespace
 from rdflib.namespace import RDF
 

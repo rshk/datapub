@@ -1,16 +1,10 @@
 """
 Tests for the DataPub blobs CRUD
 """
-
-import binascii
 import hashlib
-from io import BytesIO
 import json
-import os
 import textwrap
-
-# from rdflib import Graph, Namespace
-# from rdflib.namespace import RDF
+from io import BytesIO
 
 from .fixtures import app
 
