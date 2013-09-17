@@ -17,6 +17,7 @@ GET /catalog/<dataset>[.format]
 
 import hashlib
 import json
+import re
 import os
 
 import flask
@@ -25,6 +26,9 @@ from rdflib import Graph
 
 from .app import app
 from .graph import graph
+
+
+RE_SHA1 = re.compile(r'^[0-9a-fA-F]{40}$')
 
 
 SERIALIZATION_FORMATS = {
@@ -93,8 +97,7 @@ def catalog_view(fmt=None):
         return json.dumps({'message': "{} triples deleted".format(len(g2))})
 
 
-@app.route('/blobs', methods=['GET', 'POST', 'DELETE'])
-@app.route('/blobs/<blob_id>')
+@app.route('/blobs', methods=['GET', 'POST'])
 def blobs_view(blob_id=None):
     """
     Blobs storage API. Allows GET|POST|DELETE of binary files.
@@ -138,7 +141,31 @@ def blobs_view(blob_id=None):
         new_file.save(file_dest)
         return (json.dumps({'blob_id': sha1}), 201,
                 {'Content-Type': 'application/json',
-                 'Location': flask.url_for('blobs_view', blob_id=sha1)})
+                 'Location': flask.url_for('blob_view', blob_id=sha1)})
 
-    return "This is a result"
-    pass
+
+@app.route('/blobs/<blob_id>', methods=['GET', 'DELETE'])
+def blob_view(blob_id=None):
+    if not RE_SHA1.match(blob_id):
+        return json.dumps({'message': 'Invalid blob id'}), 400
+
+    if request.method == 'GET':
+        ## Return the contents of the file
+
+        ## todo: it would be nice to return the correct mimetype of the file
+        ## (guessed using python-magic?) and its original file name;
+        ## maybe we can store them in the triple store?
+
+        blob_file = flask.safe_join(app.config['UPLOAD_FOLDER'], blob_id)
+        if not os.path.exists(blob_file):
+            return json.dumps({'message': 'File not found'}), 404
+        return flask.send_file(blob_file,
+                               mimetype='application/octet-stream',
+                               as_attachment=True)
+
+    elif request.method == 'DELETE':
+        ## todo: be careful here, as we want to check that the blob
+        ## is not referenced in the graph...
+        return
+
+    assert False, "Something went wrong (disallowed method passed through)"

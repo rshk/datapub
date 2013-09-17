@@ -3,11 +3,11 @@ Tests for the DataPub blobs CRUD
 """
 
 import binascii
-#import datetime
-#import json
+import hashlib
+from io import BytesIO
+import json
 import os
 import textwrap
-from io import BytesIO
 
 # from rdflib import Graph, Namespace
 # from rdflib.namespace import RDF
@@ -16,31 +16,30 @@ from .fixtures import app
 
 
 def test_file_upload(app):
-    # boundary = binascii.hexlify(os.urandom(16))
-    # headers = {
-    #     'Content-Type': 'multipart/form-data; boundary={0}'.format(boundary),
-    # }
-    # payload = textwrap.dedent("""
-    # --{boundary}
-    # Content-Disposition: form-data; name="file"; filename="example.txt"
-    # Content-Type: text/plain
-
-    # Hello, world!
-    # This is just an example text file.
-    # This is the content of the example text file.
-
-    # --{boundary}
-    # """.format(boundary=boundary))
     payload = textwrap.dedent("""
     Hello, world!
     This is just an example text file.
     This is the content of the example text file.
     """)
-    resp = app.post('/blobs', data={
-        'file': (BytesIO(payload), 'hello.txt')
-    })
-    # resp = app.post('/blobs', data=payload, headers=headers)
-    assert resp.status_code == 200
+    payload_sha1 = hashlib.sha1(payload).hexdigest()
 
-    ## todo: test the Location: header content
-    ## todo: test the blob_id parameter in the response json
+    resp = app.post('/blobs', data={
+        'file': (BytesIO(payload), 'hello.txt', 'text/plain')
+    })
+
+    ## Status code must be 201 Created
+    assert resp.status_code == 201
+
+    ## test the Location: header content
+    new_loc = resp.headers['Location']
+    assert payload_sha1 in new_loc
+    assert new_loc.endswith('/blobs/{0}'.format(payload_sha1))
+
+    ## Test the blob_id parameter in the response json
+    resp_data = json.loads(resp.data)
+    assert resp_data['blob_id'] == payload_sha1
+
+    ## Check object returned by requesting the url in the Location header
+    resp = app.get(new_loc)
+    assert resp.status_code == 200
+    assert resp.data == payload
