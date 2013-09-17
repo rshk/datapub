@@ -139,33 +139,49 @@ def blobs_view(blob_id=None):
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
         new_file.save(file_dest)
+
+        ## todo: store information about the blob in the graph
+        # How do we store it?
+
+        ## </blobs/sha1> <rdf:type>
+        ##               <dcat:mediaType> <...>
+
         return (json.dumps({'blob_id': sha1}), 201,
                 {'Content-Type': 'application/json',
                  'Location': flask.url_for('blob_view', blob_id=sha1)})
 
 
 @app.route('/blobs/<blob_id>', methods=['GET', 'DELETE'])
-def blob_view(blob_id=None):
+def blob_view(blob_id):
+    ## Check that the blob id is valid
     if not RE_SHA1.match(blob_id):
         return json.dumps({'message': 'Invalid blob id'}), 400
 
+    ## Build file name; if the file doesn't exist, return 404'
+    blob_file = flask.safe_join(app.config['UPLOAD_FOLDER'], blob_id)
+    if not os.path.exists(blob_file):
+        return json.dumps({'message': 'File not found'}), 404
+
     if request.method == 'GET':
-        ## Return the contents of the file
+        ## Return the content of the file
 
         ## todo: it would be nice to return the correct mimetype of the file
         ## (guessed using python-magic?) and its original file name;
-        ## maybe we can store them in the triple store?
+        ## maybe we can store them in the triple store..?
 
-        blob_file = flask.safe_join(app.config['UPLOAD_FOLDER'], blob_id)
-        if not os.path.exists(blob_file):
-            return json.dumps({'message': 'File not found'}), 404
+        ## note: the user-specified filename and mimetype must be attached
+        ## to the distribution, **not** the blob, as blobs can possibly
+        ## be attached to multiple distributions.
+
         return flask.send_file(blob_file,
                                mimetype='application/octet-stream',
                                as_attachment=True)
 
     elif request.method == 'DELETE':
         ## todo: be careful here, as we want to check that the blob
-        ## is not referenced in the graph...
-        return
+        ## is not referenced in the graph..
+
+        os.unlink(blob_file)
+        return json.dumps({'message': 'Blob {0} deleted'.format(blob_id)})
 
     assert False, "Something went wrong (disallowed method passed through)"

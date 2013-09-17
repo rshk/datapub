@@ -37,3 +37,11 @@ def test_file_upload(app):
     resp = app.get(new_loc)
     assert resp.status_code == 200
     assert resp.data == payload
+
+    ## Delete the blob and check it was removed correctly
+    resp = app.delete(new_loc)
+    assert resp.status_code == 200
+
+    ## Make sure we get a 404 meaning the file was deleted correctly
+    resp = app.get(new_loc)
+    assert resp.status_code == 404
