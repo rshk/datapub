@@ -15,7 +15,7 @@ install_requires = [
 
     #"Flask-OpenID",  # Maybe in the future
     #"Flask-Login",  # This looks nice.. -> can we store users in graph too?
-    #"Flask-SQLAlchemy",  # we use rdflib for this
+    "Flask-SQLAlchemy",  # For the database access
     #"Flask-Restless",  # ?
 
     ## todo: we'd need a rdflib store backed by datapub API
@@ -23,8 +23,8 @@ install_requires = [
     # "psycopg2",  # Only if using postgresql
     # "six",  # This is apparently needed, for py3k (py3k not supported yet)
 
-    "rdflib>=4.0",
-    "rdflib-sqlalchemy",
+    #"rdflib>=4.0",
+    #"rdflib-sqlalchemy",
     #"rdflib-jsonld==0.1",
 ]
 
