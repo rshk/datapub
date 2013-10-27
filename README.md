@@ -4,17 +4,29 @@
 
 Simple data publishing application.
 
+## Abstract
+
+DataPub is a simple application allowing publication (upload)
+of datasets in different formats.
+
+Features offered are:
+
+* Administration UI to upload and manage datasets + resources
+* A RESTful API offering access to the published data
+* (Optionally) a Web UI to display the published data, including
+  (pluggable) visualizations of the data.
+
+Then, of course, it should be as easy as possible to extend
+the application to provide extra functionality, etc.
+
+
 ## Technologies
 
 * Python
-* Flask
-* Flask-RESTful
-* RDFlib
-* SQLAlchemy
+* Flask, as the web framework
+* SQLAlchemy, to provide database abstraction
 
-## How it works
+Recommended database: PostgreSQL
 
-* Allow uploading files -> stored as blobs
-* Allow defining datasets/distributions and associate blobs
-* Expose metadata information via RDF formats
-* (maybe) allow querying the graph via SPARQL
+It may be worth adding ElasticSearch for nicer searches too,
+but that should go in a separate app / plugin, imho.
