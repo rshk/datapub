@@ -42,7 +42,7 @@ def json_response(data, status=200):
     }
 
 
-def dump_dataset(obj):
+def _dump_dataset(obj):
     return {
         'id': obj.id,
         'title': obj.title,
@@ -50,16 +50,20 @@ def dump_dataset(obj):
     }
 
 
-def load_dataset(obj):
+def _load_dataset(data):
     ds = Dataset()
-    if 'id' in obj:
-        ds.id = obj['id']
-    ds.title = obj.get('title')
-    ds.description = obj.get('description')
+    if 'id' in data:
+        ds.id = data['id']
+    _edit_dataset(ds, data)
     return ds
 
 
-def dump_resource(obj):
+def _edit_dataset(obj, data):
+    obj.title = data.get('title')
+    obj.description = data.get('description')
+
+
+def _dump_resource(obj):
     return {
         'id': obj.id,
         'title': obj.title,
@@ -69,15 +73,19 @@ def dump_resource(obj):
     }
 
 
-def load_resource(obj):
+def _load_resource(data):
     res = Resource()
-    if 'id' in obj:
-        res.id = obj['id']
-    res.title = obj.get('title')
-    res.description = obj.get('description')
-    res.content_type = obj.get('content_type')
-    res.file_name = obj.get('file_name')
+    if 'id' in data:
+        res.id = data['id']
+    _edit_resource(res, data)
     return res
+
+
+def _edit_resource(obj, data):
+    obj.title = data.get('title')
+    obj.description = data.get('description')
+    obj.content_type = data.get('content_type')
+    obj.file_name = data.get('file_name')
 
 
 @bp.route('/')
@@ -92,7 +100,7 @@ def list_datasets():
     # we can .paginate(page, per_page)
     # also, remember to set Link: header
     return json_response([
-        dump_dataset(obj) for obj in objects
+        _dump_dataset(obj) for obj in objects
     ])
 
 
@@ -100,27 +108,35 @@ def list_datasets():
 def get_dataset(dataset_id):
     dataset_id = int(dataset_id)
     dataset = Dataset.query.get_or_404(dataset_id)
-    return json_response(dump_dataset(dataset))
+    return json_response(_dump_dataset(dataset))
 
 
 @bp.route('/dataset', methods=['POST'])
 def create_dataset():
     obj = request.json or {}
-    model = load_dataset(obj)
+    model = _load_dataset(obj)
     db.session.add(model)
     db.session.commit()
-    return json_response(dump_dataset(model), 201)
+    return json_response(_dump_dataset(model), 201)
 
 
 @bp.route('/dataset/<dataset_id>', methods=['PUT'])
 def update_dataset(dataset_id):
+    dataset = Dataset.query.get(int(dataset_id))
+    _edit_dataset(dataset, request.json or {})
+    db.session.add(dataset)
+    #dataset.save()
+    db.session.commit()
     return json_response({'id': dataset_id}, 201)
 
 
 @bp.route('/dataset/<dataset_id>', methods=['DELETE'])
 def delete_dataset(dataset_id):
     # todo: how to delete a model (w/o retrieving it first)?
-    #Dataset.query.filter(int(dataset_id)).delete()
+    #Dataset.query.filter_by(id=int(dataset_id)).delete()
+    dataset = Dataset.query.get(int(dataset_id))
+    db.session.delete(dataset)
+    db.session.commit()
     return json_response({'ok': True})
 
 
