@@ -1,33 +1,65 @@
 """
 Tests for the DataPub CRUD
 """
-from rdflib import Graph, Namespace
-from rdflib.namespace import RDF
+
+import json
 
 from .fixtures import app
 
 
-# def post_data(app, url, data):
-#     return app.post(url, data=json.dumps(data),
-#                     content_type='application/json')
+def test_dataset_crud(app):
+    # Try listing datasets (should be empty)
+    res = app.get('/api/1/dataset')
+    assert res.status_code == 200
+    assert json.loads(res.data) == []
+
+    # Try getting a non-existent dataset
+    res = app.get('/api/1/dataset/1')
+    assert res.status_code == 404
+
+    # Create a new dataset
+    res = app.post('/api/1/dataset', data=json.dumps({
+        'title': 'First Dataset',
+    }), headers={'Content-type': 'application/json'})
+    assert res.status_code == 201
+    obj = json.loads(res.data)
+    assert obj['id'] == 1
+    assert obj['title'] == 'First Dataset'
+
+    # Get the dataset back
+    res = app.get('/api/1/dataset/1')
+    assert res.status_code == 200
+    obj = json.loads(res.data)
+    assert obj['id'] == 1
+    assert obj['title'] == 'First Dataset'
+
+# #from rdflib import Graph, Namespace
+# #from rdflib.namespace import RDF
+
+# from .fixtures import app
 
 
-## Define the DCAT namespace
-DCAT = Namespace("http://www.w3.org/ns/dcat#")
+# # def post_data(app, url, data):
+# #     return app.post(url, data=json.dumps(data),
+# #                     content_type='application/json')
 
 
-def test_simple_graph_manipulation(app):
-    ## First, search for the catalog
-    result = app.get('/catalog.rdf')
-    assert result.status_code == 200
-    graph = Graph()
-    graph.parse(data=result.data, format='xml')
+# ## Define the DCAT namespace
+# DCAT = Namespace("http://www.w3.org/ns/dcat#")
 
-    ## Ok, now look for a catalog..
-    triples = list(graph.triples((None, RDF.type, DCAT.Catalog)))
-    assert len(triples) == 1
 
-    catalog = triples[0][0]
+# def test_simple_graph_manipulation(app):
+#     ## First, search for the catalog
+#     result = app.get('/catalog.rdf')
+#     assert result.status_code == 200
+#     graph = Graph()
+#     graph.parse(data=result.data, format='xml')
+
+#     ## Ok, now look for a catalog..
+#     triples = list(graph.triples((None, RDF.type, DCAT.Catalog)))
+#     assert len(triples) == 1
+
+#     catalog = triples[0][0]
 
 
 # def test_objects_crud(app):
