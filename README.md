@@ -30,3 +30,7 @@ Recommended database: PostgreSQL
 
 It may be worth adding ElasticSearch for nicer searches too,
 but that should go in a separate app / plugin, imho.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/rshk/datapub/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
